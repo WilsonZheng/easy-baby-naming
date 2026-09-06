@@ -120,6 +120,19 @@ export interface GenerateOptions {
   targetElement: Element | null
   seed: number
   count: number
+  /**
+   * 这一轮条件下已经给用户看过的名字，不要再出。
+   * 加权抽样天然偏爱高分名字，不记住看过什么的话，「换一批」会反复抽到同一批。
+   */
+  exclude?: ReadonlySet<string>
+}
+
+export interface GenerateResult {
+  names: NameCandidate[]
+  /** 符合当前条件的候选总数（不含已排除的） */
+  poolSize: number
+  /** 符合条件的名字已经全看完了 */
+  exhausted: boolean
 }
 
 interface Scored {
@@ -128,7 +141,11 @@ interface Scored {
 }
 
 export function generateNames(opts: GenerateOptions): NameCandidate[] {
-  const { prefs, targetElement, seed, count } = opts
+  return generate(opts).names
+}
+
+export function generate(opts: GenerateOptions): GenerateResult {
+  const { prefs, targetElement, seed, count, exclude } = opts
   const rand = mulberry32(seed)
   const pool = buildPool(prefs)
   const surnameEntry = SURNAME_MAP.get(prefs.surname)
@@ -389,6 +406,13 @@ export function generateNames(opts: GenerateOptions): NameCandidate[] {
     }
   }
 
+  results.sort((a, b) => b.raw - a.raw)
+
+  // 把看过的名字整个拿掉，而不是抽中之后再跳过 —— 后者会让权重分布失真
+  const fresh = exclude?.size
+    ? results.filter((r) => !exclude.has(r.candidate.given))
+    : results
+
   // 「换一批」要真的换一批，但不能靠均匀洗牌 —— 那会把分数的作用整个抹掉，
   // 用户拨了「优先少笔画」「补某个五行」就看不出区别。
   //
@@ -396,7 +420,7 @@ export function generateNames(opts: GenerateOptions): NameCandidate[] {
   // 就多一个 e 倍。高分名字明显更容易出现，低分的仍有机会，
   // 于是「变化」和「偏好真的生效」可以同时成立。
   const TEMPERATURE = 7
-  const ranked = results.slice(0, Math.max(count * 20, 240))
+  const ranked = fresh.slice(0, Math.max(count * 20, 240))
   const topScore = ranked.length ? ranked[0].raw : 0
   const weights = ranked.map((r) => Math.exp((r.raw - topScore) / TEMPERATURE))
 
@@ -432,7 +456,7 @@ export function generateNames(opts: GenerateOptions): NameCandidate[] {
     if (given.length > 1) lastCount.set(last, (lastCount.get(last) ?? 0) + 1)
     picked.push(candidate)
   }
-  return picked
+  return { names: picked, poolSize: fresh.length, exhausted: picked.length < count }
 }
 
 function buildWhy(

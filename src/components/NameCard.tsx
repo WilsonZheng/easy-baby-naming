@@ -1,14 +1,17 @@
 import type { NameCandidate } from '../types'
 import { readabilityLabel } from '../engine/readability'
+import type { PairedEnglishName } from '../engine/englishEngine'
 
 interface Props {
   candidate: NameCandidate
   favorited: boolean
+  /** 最搭的一个英文名，直接显示在中文名旁边 */
+  englishPick?: PairedEnglishName
   onToggleFavorite: () => void
   onOpen: () => void
 }
 
-export function NameCard({ candidate: n, favorited, onToggleFavorite, onOpen }: Props) {
+export function NameCard({ candidate: n, favorited, englishPick, onToggleFavorite, onOpen }: Props) {
   const read = readabilityLabel(n.readability.score)
   const warn = n.homophones.find((h) => h.level === 'warn')
 
@@ -22,6 +25,13 @@ export function NameCard({ candidate: n, favorited, onToggleFavorite, onOpen }: 
             <span className="sur">{n.surname}</span>{n.given}
           </div>
           <div className="py">{n.pinyin}</div>
+          {englishPick && (
+            <div className={englishPick.matched ? 'en-inline' : 'en-inline loose'}>
+              <span className="en-name">{englishPick.name.name}</span>
+              <span className="en-pron">/{englishPick.name.pron}/</span>
+              <span className="en-why">{englishPick.reasons[0]}</span>
+            </div>
+          )}
         </div>
         <div className="top-right">
           <button

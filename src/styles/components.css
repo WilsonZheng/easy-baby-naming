@@ -9,6 +9,42 @@
   border-bottom: 1px solid var(--line);
   padding: 10px 0;
 }
+/* 最上面一层的取舍：先定中文名，还是先定英文名 */
+.quickbar .mode-seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  margin-bottom: 8px;
+  background: var(--surface-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+.quickbar .mode-seg button {
+  position: relative;
+  min-height: 34px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  transition: background .15s, color .15s;
+}
+.quickbar .mode-seg button::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}
+.quickbar .mode-seg button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--jade);
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+}
+
 .quickbar .row {
   display: flex;
   gap: 8px;
@@ -131,6 +167,37 @@
   color: var(--ink-3);
   letter-spacing: .4px;
 }
+/* 中文名下方直接带出配好的英文名，不用点进详情才看得到 */
+.name-card .en-inline {
+  margin-top: 7px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: var(--r-sm);
+  background: var(--jade-soft);
+  border: 1px solid var(--jade-line);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+/* 没有真配上时用中性底色，不要用绿色暗示「这是一对」 */
+.name-card .en-inline.loose {
+  background: var(--surface-2);
+  border-color: var(--line);
+}
+.name-card .en-inline.loose .en-name { color: var(--ink-2); }
+.name-card .en-inline.loose .en-pron { color: var(--ink-3); }
+
+.name-card .en-inline .en-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: var(--jade-hover);
+}
+.name-card .en-inline .en-pron { color: var(--jade); opacity: .85; }
+.name-card .en-inline .en-why { color: var(--ink-3); }
+
 .name-card .top-right {
   margin-left: auto;
   display: flex;
@@ -187,6 +254,44 @@
   line-height: 1.6;
 }
 .source-line .ref { display: block; font-family: var(--sans); font-size: 11px; opacity: .8; margin-top: 2px; }
+
+.name-card .glyphs.en-title {
+  font-family: var(--sans);
+  font-size: 26px;
+  letter-spacing: .2px;
+  font-weight: 700;
+}
+
+.zh-matches {
+  margin-top: 10px;
+  padding: 9px 11px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.zh-matches-cap {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+.zh-match {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 3px 0;
+  font-size: 12.5px;
+}
+.zh-match .zh-name {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.zh-match .zh-py { color: var(--ink-3); }
+.zh-match .zh-why { color: var(--ink-3); margin-left: auto; }
 
 /* ---------- 底部弹层 ---------- */
 

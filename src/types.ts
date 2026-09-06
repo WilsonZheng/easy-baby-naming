@@ -12,7 +12,11 @@ export interface BirthInfo {
   city: string
 }
 
+/** 先定中文名，还是先定英文名 */
+export type NameMode = 'zh' | 'en'
+
 export interface Prefs {
+  mode: NameMode
   surname: string
   gender: Gender
   /** 'any' 表示不挑风格 */
@@ -37,6 +41,7 @@ export interface Prefs {
 }
 
 export const DEFAULT_PREFS: Prefs = {
+  mode: 'zh',
   surname: '',
   gender: 'neutral',
   style: 'any',
