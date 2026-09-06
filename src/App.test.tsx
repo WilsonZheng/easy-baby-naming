@@ -119,8 +119,8 @@ describe('主流程', () => {
     await user.type(screen.getByLabelText('宝宝的姓氏'), '林')
     await user.click(await screen.findByRole('button', { name: /^条件/ }))
     const dialog = await screen.findByRole('dialog')
-    await user.type(within(dialog).getByLabelText('必须含这个字（辈分字等）'), '文')
-    await user.type(within(dialog).getByLabelText('家族避讳的字'), '文')
+    await user.type(within(dialog).getByLabelText('必须含这个字'), '文')
+    await user.type(within(dialog).getByLabelText('要避开的字'), '文')
     expect(await within(dialog).findByText(/同时出现在必含字和避讳字里/)).toBeInTheDocument()
   })
 

@@ -6,6 +6,7 @@ import { EnglishDetail } from '../components/EnglishDetail'
 import { FiltersSheet } from '../components/FiltersSheet'
 import { HanInput } from '../components/HanInput'
 import { AiAskSheet } from '../components/AiAskSheet'
+import { ExistingName } from '../components/ExistingName'
 import { Empty } from '../components/ui'
 import { generate } from '../engine/nameEngine'
 import { filterEnglishNames, pairChineseForEnglish, pairEnglishNames } from '../engine/englishEngine'
@@ -78,7 +79,7 @@ export function Studio({
   }, [conditionKey])
 
   const zh = useMemo(() => {
-    if (!surnameOk) return { names: [] as NameCandidate[], poolSize: 0, exhausted: false }
+    if (!surnameOk || prefs.mode !== 'zh') return { names: [] as NameCandidate[], poolSize: 0, exhausted: false }
     return generate({ prefs, targetElement, seed, count: BATCH, exclude: seenZh })
   }, [prefs, targetElement, seed, surnameOk, seenZh])
 
@@ -195,6 +196,7 @@ export function Studio({
   }
 
   const isEn = prefs.mode === 'en'
+  const isHave = prefs.mode === 'have'
   const wrapped = isEn
     ? en.names.length < BATCH && seenEn.size > 0
     : zh.names.length < BATCH && seenZh.size > 0
@@ -206,12 +208,15 @@ export function Studio({
       <div className="quickbar">
         <div className="col">
           <div className="top-row">
-            <div className="mode-seg" role="group" aria-label="先定哪个名字">
-              <button aria-pressed={!isEn} onClick={() => onPrefsChange({ mode: 'zh' })}>
-                中文名优先
+            <div className="mode-seg" role="group" aria-label="你现在要做什么">
+              <button aria-pressed={prefs.mode === 'zh'} onClick={() => onPrefsChange({ mode: 'zh' })}>
+                取中文名
               </button>
-              <button aria-pressed={isEn} onClick={() => onPrefsChange({ mode: 'en' })}>
-                英文名优先
+              <button aria-pressed={prefs.mode === 'en'} onClick={() => onPrefsChange({ mode: 'en' })}>
+                取英文名
+              </button>
+              <button aria-pressed={isHave} onClick={() => onPrefsChange({ mode: 'have' })}>
+                已有名字
               </button>
             </div>
             <button className="chip sm ai-btn" onClick={() => setOpenAsk(true)}>
@@ -245,6 +250,7 @@ export function Studio({
           </div>
 
           {/* 风格铺满一整行，五个选项永远全部可见 —— 主要选择控件不该需要横向滑动 */}
+          {!isHave && (
           <div className="filters" role="group" aria-label={isEn ? '英文名风格' : '名字气质'}>
             {isEn
               ? EN_SHORTCUTS.map((s) => (
@@ -258,10 +264,20 @@ export function Studio({
                     onClick={() => onPrefsChange({ style: s.value })}>{s.label}</button>
                 ))}
           </div>
+          )}
         </div>
       </div>
 
-      <div className="col">
+      {isHave && (
+        <ExistingName
+          prefs={prefs}
+          onPrefsChange={onPrefsChange}
+          favorites={favorites}
+          onToggleFavorite={onToggleFavorite}
+        />
+      )}
+
+      <div className="col" hidden={isHave}>
         {!prefs.surname && (
           <Empty glyph="名" title="先填一个姓">
             {isEn
@@ -342,7 +358,7 @@ export function Studio({
         )}
       </div>
 
-      {hasResults && (
+      {hasResults && !isHave && (
         <div className="fab-row">
           <button className="fab" onClick={nextBatch}>↻ 换一批</button>
         </div>

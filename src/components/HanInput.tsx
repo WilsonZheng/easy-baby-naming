@@ -14,8 +14,10 @@ import { useEffect, useRef, useState } from 'react'
 interface Props {
   value: string
   onChange: (value: string) => void
-  /** 最多保留几个汉字，不限则不传 */
+  /** 最多保留几个字符，不限则不传 */
   maxChars?: number
+  /** 同时允许拉丁字母（用于「中文名或英文名都行」的输入框） */
+  allowLatin?: boolean
   id?: string
   className?: string
   placeholder?: string
@@ -24,9 +26,10 @@ interface Props {
 }
 
 const NON_HAN = /[^一-龥]/g
+const NON_HAN_OR_LATIN = /[^一-龥A-Za-z'\- ]/g
 
 export function HanInput({
-  value, onChange, maxChars, className = 'input', ...rest
+  value, onChange, maxChars, allowLatin, className = 'input', ...rest
 }: Props) {
   const composing = useRef(false)
   const [draft, setDraft] = useState(value)
@@ -37,7 +40,7 @@ export function HanInput({
   }, [value])
 
   const commit = (raw: string) => {
-    let clean = raw.replace(NON_HAN, '')
+    let clean = raw.replace(allowLatin ? NON_HAN_OR_LATIN : NON_HAN, '')
     if (maxChars !== undefined) clean = clean.slice(0, maxChars)
     setDraft(clean)
     if (clean !== value) onChange(clean)

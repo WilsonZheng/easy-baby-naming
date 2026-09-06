@@ -20,7 +20,7 @@
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 3px;
   padding: 3px;
   background: var(--surface-3);
@@ -30,11 +30,13 @@
 .quickbar .mode-seg button {
   position: relative;
   min-height: 34px;
+  padding: 0 2px;
   border: 0;
   border-radius: var(--r-sm);
   background: transparent;
   cursor: pointer;
-  font-size: 13.5px;
+  font-size: 13px;
+  white-space: nowrap;
   color: var(--ink-2);
   transition: background .15s, color .15s;
 }
@@ -117,12 +119,17 @@
  */
 .quickbar .filters {
   display: flex;
+  justify-content: center;
   gap: 6px;
   margin-top: 8px;
 }
 .quickbar .filters .chip {
   flex: 1 1 0;
+  /* 上一版漏了这行，文字全部靠左贴着，胶囊越宽越难看 */
+  justify-content: center;
   min-width: 0;
+  /* 宽屏上不要把胶囊拉成一条长条，超过这个宽度就居中收住 */
+  max-width: 120px;
   padding: 0 4px;
 }
 .quickbar .ai-btn,
@@ -307,6 +314,46 @@
 .zh-match .zh-py { color: var(--ink-3); }
 .zh-match .zh-why { color: var(--ink-3); margin-left: auto; }
 
+/* ---------- 已有名字：分析结果 ---------- */
+
+.analysis-hero {
+  margin-top: 6px;
+  padding: 18px 14px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+}
+.analysis-hero .glyphs {
+  font-family: var(--serif);
+  font-size: 40px;
+  letter-spacing: 5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.analysis-hero .glyphs.en {
+  font-family: var(--sans);
+  font-size: 32px;
+  letter-spacing: .3px;
+  font-weight: 700;
+}
+.analysis-hero .glyphs .sur { color: var(--ink-3); font-weight: 400; }
+.analysis-hero .py { margin-top: 6px; color: var(--ink-3); font-size: 13.5px; letter-spacing: .4px; }
+.analysis-hero .pills {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.analysis-h {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 24px 0 10px;
+}
+
 /* ---------- 底部弹层 ---------- */
 
 .sheet-backdrop {
@@ -384,6 +431,55 @@
   }
   @keyframes slide-up { from { opacity: 0 } to { opacity: 1 } }
   .sheet .grab { display: none; }
+}
+
+/*
+ * 筛选面板分组。原来所有字段一路平铺，看着挤成一团；
+ * 现在每组之间留出明显的间隔和一条分隔线，眼睛能歇一下。
+ */
+.filter-group {
+  padding-bottom: 26px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid var(--line);
+}
+.filter-group:last-child {
+  padding-bottom: 8px;
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+.filter-group > h3 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  margin-bottom: 4px;
+}
+.filter-group > .group-desc {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-3);
+  margin-bottom: 14px;
+}
+.filter-group > .group-body > .field:last-child {
+  margin-bottom: 0;
+}
+.filter-group .field {
+  margin-bottom: 20px;
+}
+.filter-group .chips {
+  gap: 8px;
+}
+
+/* 年月日 / 时分 这种并排的下拉 */
+.select-row {
+  display: flex;
+  gap: 8px;
+}
+.select-row .select {
+  flex: 1;
+  min-width: 0;
+}
+.select-row .select:disabled {
+  opacity: .5;
 }
 
 /* ---------- 名字详情 ---------- */

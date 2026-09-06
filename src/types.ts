@@ -12,8 +12,8 @@ export interface BirthInfo {
   city: string
 }
 
-/** 先定中文名，还是先定英文名 */
-export type NameMode = 'zh' | 'en'
+/** 取中文名、取英文名，还是已经有名字了要配另一半 */
+export type NameMode = 'zh' | 'en' | 'have'
 
 export interface Prefs {
   mode: NameMode

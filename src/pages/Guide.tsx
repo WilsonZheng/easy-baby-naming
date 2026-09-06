@@ -112,6 +112,19 @@ export function Guide() {
         </ol>
       </div>
 
+      <h2 style={{ fontSize: 15, margin: '24px 0 10px' }}>名字已经定了也用得上</h2>
+      <div className="guide-item">
+        <p>
+          顶部切到「已有名字」，输入已经定下的中文名或英文名，会给出逐字解读、
+          谐音检查，以及最要紧的那一项 —— <strong>这个名字在英语环境里会被念成什么</strong>。
+          哪怕名字改不了了，提前知道也好过等孩子上学才发现。
+        </p>
+        <div className="example">
+          输中文名会配出英文名，输英文名会配出中文名，两个方向都给理由。
+          字库覆盖不到的字会如实说「不认识」，不会猜一个读音给你。
+        </div>
+      </div>
+
       <h2 style={{ fontSize: 15, margin: '24px 0 10px' }}>关于 AI 功能</h2>
       <div className="guide-item">
         <p>
