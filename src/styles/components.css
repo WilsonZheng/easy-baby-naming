@@ -9,13 +9,20 @@
   border-bottom: 1px solid var(--line);
   padding: 10px 0;
 }
-/* 最上面一层的取舍：先定中文名，还是先定英文名 */
+/* 第一行：模式取舍 + 两个次要入口 */
+.quickbar .top-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 8px;
+}
 .quickbar .mode-seg {
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3px;
   padding: 3px;
-  margin-bottom: 8px;
   background: var(--surface-3);
   border: 1px solid var(--line);
   border-radius: var(--r);
@@ -103,27 +110,26 @@
   font-weight: 600;
   box-shadow: var(--shadow-1);
 }
-.quickbar .filter-row {
+/*
+ * 风格是主要选择控件，五个选项必须一眼全看到。
+ * 之前塞在可横向滚动的行里，「清朗」被挤到屏幕外 —— 用户根本不知道它存在。
+ * 现在均分整行，最窄的手机（320px）上也全部可见，不需要滑动。
+ */
+.quickbar .filters {
   display: flex;
-  align-items: center;
   gap: 6px;
   margin-top: 8px;
 }
-.quickbar .filters {
-  flex: 1;
+.quickbar .filters .chip {
+  flex: 1 1 0;
   min-width: 0;
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-  /* 右侧淡出，明确提示还能往右滑；渐隐区要够宽，否则会像是被硬切断 */
-  mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent 100%);
+  padding: 0 4px;
 }
 .quickbar .ai-btn,
 .quickbar .more-btn {
   flex: none;
   padding: 0 10px;
+  white-space: nowrap;
 }
 .quickbar .ai-btn {
   border-color: var(--line-2);
@@ -136,7 +142,6 @@
   background: var(--jade-soft);
   font-weight: 600;
 }
-.quickbar .filters::-webkit-scrollbar { display: none; }
 
 /* ---------- 名字卡片 ---------- */
 

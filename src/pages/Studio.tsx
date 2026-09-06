@@ -27,19 +27,19 @@ interface Props {
 }
 
 const STYLE_SHORTCUTS = [
-  { value: 'any', label: '不挑风格' },
-  { value: 'shu', label: '书卷' },
-  { value: 'nat', label: '自然' },
-  { value: 'jian', label: '简约' },
-  { value: 'qing', label: '清朗' },
+  { value: 'any', label: '不挑', full: '不挑风格' },
+  { value: 'shu', label: '书卷', full: '书卷文雅' },
+  { value: 'nat', label: '自然', full: '自然大气' },
+  { value: 'jian', label: '简约', full: '简约温柔' },
+  { value: 'qing', label: '清朗', full: '清朗现代' },
 ] as const
 
 const EN_SHORTCUTS = [
-  { value: 'any', label: '不挑风格' },
-  { value: 'classic', label: '经典' },
-  { value: 'nature', label: '自然' },
-  { value: 'short', label: '简洁' },
-  { value: 'modern', label: '现代' },
+  { value: 'any', label: '不挑', full: '不挑风格' },
+  { value: 'classic', label: '经典', full: '经典' },
+  { value: 'nature', label: '自然', full: '自然' },
+  { value: 'short', label: '简洁', full: '简洁' },
+  { value: 'modern', label: '现代', full: '现代' },
 ] as const
 
 const BATCH = 12
@@ -205,12 +205,20 @@ export function Studio({
     <>
       <div className="quickbar">
         <div className="col">
-          <div className="mode-seg" role="group" aria-label="先定哪个名字">
-            <button aria-pressed={!isEn} onClick={() => onPrefsChange({ mode: 'zh' })}>
-              先定中文名
+          <div className="top-row">
+            <div className="mode-seg" role="group" aria-label="先定哪个名字">
+              <button aria-pressed={!isEn} onClick={() => onPrefsChange({ mode: 'zh' })}>
+                中文名优先
+              </button>
+              <button aria-pressed={isEn} onClick={() => onPrefsChange({ mode: 'en' })}>
+                英文名优先
+              </button>
+            </div>
+            <button className="chip sm ai-btn" onClick={() => setOpenAsk(true)}>
+              ✨ 一句话
             </button>
-            <button aria-pressed={isEn} onClick={() => onPrefsChange({ mode: 'en' })}>
-              先定英文名
+            <button className="chip sm more-btn" onClick={() => setOpenFilters(true)}>
+              条件{activeExtraCount(prefs) > 0 ? ` ${activeExtraCount(prefs)}` : ''}
             </button>
           </div>
 
@@ -236,26 +244,19 @@ export function Studio({
             </div>
           </div>
 
-          <div className="filter-row">
-            <div className="filters">
-              {isEn
-                ? EN_SHORTCUTS.map((s) => (
-                    <button key={s.value} className="chip sm"
-                      aria-pressed={prefs.enStyle === s.value}
-                      onClick={() => onPrefsChange({ enStyle: s.value })}>{s.label}</button>
-                  ))
-                : STYLE_SHORTCUTS.map((s) => (
-                    <button key={s.value} className="chip sm"
-                      aria-pressed={prefs.style === s.value}
-                      onClick={() => onPrefsChange({ style: s.value })}>{s.label}</button>
-                  ))}
-            </div>
-            <button className="chip sm ai-btn" onClick={() => setOpenAsk(true)}>
-              ✨ 一句话
-            </button>
-            <button className="chip sm more-btn" onClick={() => setOpenFilters(true)}>
-              更多条件{activeExtraCount(prefs) > 0 ? ` ${activeExtraCount(prefs)}` : ''}
-            </button>
+          {/* 风格铺满一整行，五个选项永远全部可见 —— 主要选择控件不该需要横向滑动 */}
+          <div className="filters" role="group" aria-label={isEn ? '英文名风格' : '名字气质'}>
+            {isEn
+              ? EN_SHORTCUTS.map((s) => (
+                  <button key={s.value} className="chip sm" aria-label={s.full}
+                    aria-pressed={prefs.enStyle === s.value}
+                    onClick={() => onPrefsChange({ enStyle: s.value })}>{s.label}</button>
+                ))
+              : STYLE_SHORTCUTS.map((s) => (
+                  <button key={s.value} className="chip sm" aria-label={s.full}
+                    aria-pressed={prefs.style === s.value}
+                    onClick={() => onPrefsChange({ style: s.value })}>{s.label}</button>
+                ))}
           </div>
         </div>
       </div>

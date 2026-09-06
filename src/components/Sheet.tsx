@@ -12,15 +12,32 @@ interface Props {
 export function Sheet({ open, title, onClose, children, footer }: Props) {
   const ref = useRef<HTMLDivElement>(null)
 
+  /*
+   * onClose 放进 ref，effect 只依赖 open。
+   *
+   * 调用方传进来的几乎都是 `onClose={() => setX(false)}` 这种每次渲染新建的函数。
+   * 如果把它放进依赖数组，用户每敲一个字都会让 effect 重跑一次 ——
+   * 清理函数把焦点还给弹层外的元素，再执行时又抢回弹层里的第一个控件，
+   * 结果就是手机上一输入键盘就被收起，字根本打不进去。
+   */
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose })
+
   useEffect(() => {
     if (!open) return
     const prev = document.activeElement as HTMLElement | null
     const el = ref.current
-    el?.querySelector<HTMLElement>('button, [href], input, select, textarea')?.focus()
+
+    /*
+     * 只把焦点移到弹层容器本身，不去 focus 里面的第一个控件。
+     * 自动聚焦第一个控件在手机上会莫名弹出键盘，而且那个控件往往是关闭按钮。
+     * 容器带 tabIndex={-1}，读屏软件能正确播报，键盘用户按 Tab 即可进入。
+     */
+    el?.focus({ preventScroll: true })
     document.body.style.overflow = 'hidden'
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onClose(); return }
+      if (e.key === 'Escape') { onCloseRef.current(); return }
       if (e.key !== 'Tab' || !el) return
       const focusables = el.querySelectorAll<HTMLElement>(
         'button:not(:disabled), [href], input:not(:disabled), select, textarea, [tabindex]:not([tabindex="-1"])',
@@ -37,14 +54,21 @@ export function Sheet({ open, title, onClose, children, footer }: Props) {
       document.body.style.overflow = ''
       prev?.focus?.()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
   return (
     <>
       <div className="sheet-backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={title} ref={ref}>
+      <div
+        className="sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
+        ref={ref}
+      >
         <div className="grab" />
         <div className="sheet-head">
           <h2>{title}</h2>
