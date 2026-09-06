@@ -2,21 +2,20 @@ name: Build and deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   workflow_dispatch:
 
+# 本仓库的 Pages 用「从分支部署」模式，源是 gh-pages。
+# 这条流水线负责把 dist/ 推到那个分支，GitHub 随后自动发布。
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# 同一时间只跑一个部署；新的 push 不打断正在进行的部署
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,24 +36,15 @@ jobs:
       - name: 构建
         run: npm run build
 
-      # 关掉 Jekyll，否则 GitHub Pages 会忽略下划线开头的文件
+      # 关掉 Jekyll，否则 Pages 会忽略下划线开头的文件
       - run: touch dist/.nojekyll
 
-      - uses: actions/configure-pages@v5
+      - name: 发布到 gh-pages 分支
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          # 仓库还没开 Pages 时自动开启，省得手动去设置页点一遍
-          enablement: true
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
+          commit_message: ${{ github.event.head_commit.message }}
