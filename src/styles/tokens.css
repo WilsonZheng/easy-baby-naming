@@ -1,0 +1,80 @@
+/* 设计变量。浅色为基准，深色只覆盖颜色，不动尺寸。 */
+:root {
+  color-scheme: light;
+
+  --ink:        #16181c;
+  --ink-2:      #4a4f57;
+  --ink-3:      #7b818a;
+  --ink-4:      #a4a9b0;
+
+  --bg:         #f5f5f2;
+  --surface:    #ffffff;
+  --surface-2:  #fafaf7;
+  --surface-3:  #f0f0ec;
+
+  --line:       #e4e4df;
+  --line-2:     #d0d0c9;
+
+  --jade:       #0e6a5a;
+  --jade-hover: #0b5648;
+  --jade-soft:  #e3f0ec;
+  --jade-line:  #b9dcd2;
+
+  --cinnabar:      #b0402a;
+  --cinnabar-soft: #fbeae5;
+  --cinnabar-line: #efc7bb;
+
+  --amber:      #8a6410;
+  --amber-soft: #fbf1db;
+  --amber-line: #e8d3a4;
+
+  --shadow-1: 0 1px 2px rgba(20, 22, 26, .05);
+  --shadow-2: 0 4px 16px rgba(20, 22, 26, .09);
+  --shadow-3: 0 -6px 28px rgba(20, 22, 26, .13);
+
+  --r-sm: 6px;
+  --r:    10px;
+  --r-lg: 16px;
+
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+          'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', Roboto, sans-serif;
+  --serif: 'Songti SC', 'Source Han Serif SC', 'Noto Serif SC', 'STSong', SimSun,
+           Georgia, 'Times New Roman', serif;
+
+  --tab-h: 56px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --ink:        #eceee9;
+  --ink-2:      #b2b6b1;
+  --ink-3:      #838883;
+  --ink-4:      #656a66;
+
+  --bg:         #121413;
+  --surface:    #1a1d1c;
+  --surface-2:  #202322;
+  --surface-3:  #272b29;
+
+  --line:       #2b2f2d;
+  --line-2:     #3b403d;
+
+  --jade:       #52c2a7;
+  --jade-hover: #6ad0b7;
+  --jade-soft:  #16302b;
+  --jade-line:  #275147;
+
+  --cinnabar:      #e08a72;
+  --cinnabar-soft: #3a201a;
+  --cinnabar-line: #5c342a;
+
+  --amber:      #d9ad57;
+  --amber-soft: #322a17;
+  --amber-line: #4d4025;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, .45);
+  --shadow-3: 0 -6px 28px rgba(0, 0, 0, .55);
+}
