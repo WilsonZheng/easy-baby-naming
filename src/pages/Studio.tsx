@@ -251,7 +251,7 @@ export function Studio({
                   ))}
             </div>
             <button className="chip sm ai-btn" onClick={() => setOpenAsk(true)}>
-              ✨ 说一句话
+              ✨ 一句话
             </button>
             <button className="chip sm more-btn" onClick={() => setOpenFilters(true)}>
               更多条件{activeExtraCount(prefs) > 0 ? ` ${activeExtraCount(prefs)}` : ''}

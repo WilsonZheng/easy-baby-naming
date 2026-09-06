@@ -106,7 +106,7 @@
 .quickbar .filter-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-top: 8px;
 }
 .quickbar .filters {
@@ -117,11 +117,15 @@
   overflow-x: auto;
   padding-bottom: 2px;
   scrollbar-width: none;
-  /* 右侧淡出，提示还能横向滑 */
-  mask-image: linear-gradient(to right, #000 88%, transparent 100%);
+  /* 右侧淡出，明确提示还能往右滑；渐隐区要够宽，否则会像是被硬切断 */
+  mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent 100%);
+}
+.quickbar .ai-btn,
+.quickbar .more-btn {
+  flex: none;
+  padding: 0 10px;
 }
 .quickbar .ai-btn {
-  flex: none;
   border-color: var(--line-2);
   font-weight: 600;
 }
