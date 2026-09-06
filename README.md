@@ -7,8 +7,8 @@
 👉 **[打开应用](https://wilsonzheng.github.io/easy-baby-naming/)**
 
 <p align="center">
-  <img src="docs/screenshot-list.png" alt="名字列表" width="330">
-  <img src="docs/screenshot-detail.png" alt="名字详情" width="330">
+  <img src="docs/screenshot-list.png" alt="中文名列表，每个名字旁边带配好的英文名" width="330">
+  <img src="docs/screenshot-detail.png" alt="先定英文名模式，每个英文名给出配得上的中文名" width="330">
 </p>
 
 ---
