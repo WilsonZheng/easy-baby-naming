@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import { resetAppStateForTests } from './store/useAppState'
@@ -21,6 +21,40 @@ describe('主流程', () => {
     const cards = await screen.findAllByRole('button', { name: /点开看详细解释$/ })
     expect(cards.length).toBe(12)
     expect(cards[0]).toHaveTextContent('林')
+  })
+
+  it('用中文输入法能打出姓氏（拼音在组字过程中不能被抹掉）', async () => {
+    render(<App />)
+    const el = screen.getByLabelText('宝宝的姓氏') as HTMLInputElement
+
+    fireEvent.compositionStart(el)
+    for (const s of ['c', 'ch', 'che', 'chen']) {
+      fireEvent.change(el, { target: { value: s } })
+    }
+    expect(el.value, '拼音被清空，输入法就出不来候选词').toBe('chen')
+
+    fireEvent.change(el, { target: { value: '陈' } })
+    fireEvent.compositionEnd(el, { target: { value: '陈' } })
+
+    const cards = await screen.findAllByRole('button', { name: /点开看详细解释$/ })
+    expect(cards[0]).toHaveTextContent('陈')
+  })
+
+  it('复姓也能用输入法打出来，不会被长度限制卡在半路', async () => {
+    render(<App />)
+    const el = screen.getByLabelText('宝宝的姓氏') as HTMLInputElement
+
+    fireEvent.compositionStart(el)
+    for (const s of ['o', 'ou', 'ouy', 'ouya', 'ouyan', 'ouyang']) {
+      fireEvent.change(el, { target: { value: s } })
+    }
+    expect(el.value).toBe('ouyang')
+
+    fireEvent.change(el, { target: { value: '欧阳' } })
+    fireEvent.compositionEnd(el, { target: { value: '欧阳' } })
+
+    const cards = await screen.findAllByRole('button', { name: /点开看详细解释$/ })
+    expect(cards[0]).toHaveTextContent('欧阳')
   })
 
   it('姓氏不是汉字时给出明确提示', async () => {

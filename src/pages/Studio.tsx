@@ -3,6 +3,7 @@ import { NameCard } from '../components/NameCard'
 import { NameDetail } from '../components/NameDetail'
 import { FiltersSheet } from '../components/FiltersSheet'
 import { Empty } from '../components/ui'
+import { HanInput } from '../components/HanInput'
 import { generateNames } from '../engine/nameEngine'
 import { useBazi } from '../engine/useBazi'
 import { SURNAME_MAP } from '../data/surnames'
@@ -85,14 +86,14 @@ export function Studio({ prefs, onPrefsChange, favorites, onToggleFavorite, onGe
       <div className="quickbar">
         <div className="col">
           <div className="row">
-            <input
+            <HanInput
               className="input surname-input"
               value={prefs.surname}
-              maxLength={2}
+              maxChars={2}
               placeholder="姓氏"
               aria-label="宝宝的姓氏"
               aria-invalid={!!prefs.surname && !surnameOk}
-              onChange={(e) => onPrefsChange({ surname: e.target.value.replace(/[^一-龥]/g, '') })}
+              onChange={(surname) => onPrefsChange({ surname })}
             />
             <div className="seg" role="group" aria-label="性别倾向">
               {([

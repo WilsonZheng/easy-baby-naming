@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Sheet } from './Sheet'
 import { ChipGroup, Switch } from './ui'
+import { HanInput } from './HanInput'
 import { BaziPanel } from './BaziPanel'
 import { CITIES, searchCities } from '../data/cities'
 import { CHAR_MAP } from '../data/characters'
@@ -106,14 +107,13 @@ export function FiltersSheet({ open, prefs, bazi, baziError, onChange, onClose }
 
       <div className="field">
         <label htmlFor="f-must">必须含这个字（辈分字等）</label>
-        <input
+        <HanInput
           id="f-must"
-          className="input"
           value={prefs.mustInclude}
-          maxLength={1}
+          maxChars={1}
           placeholder="留空表示没有"
           aria-invalid={!mustValid || !!conflict}
-          onChange={(e) => onChange({ mustInclude: e.target.value })}
+          onChange={(mustInclude) => onChange({ mustInclude })}
         />
         {!mustValid && <div className="err">「{mustChar}」不在本站的取名用字库里，换一个字试试</div>}
         {conflict && <div className="err">「{mustChar}」同时出现在必含字和避讳字里，请先解决冲突</div>}
@@ -121,24 +121,24 @@ export function FiltersSheet({ open, prefs, bazi, baziError, onChange, onClose }
 
       <div className="field">
         <label htmlFor="f-avoid">家族避讳的字</label>
-        <input
+        <HanInput
           id="f-avoid"
-          className="input"
           value={prefs.avoidChars}
+          maxChars={12}
           placeholder="比如长辈名字里的字，可以连着写"
-          onChange={(e) => onChange({ avoidChars: e.target.value })}
+          onChange={(avoidChars) => onChange({ avoidChars })}
         />
         <div className="hint">这里写的字一个都不会出现，不会因为候选变少而放宽。</div>
       </div>
 
       <div className="field">
         <label htmlFor="f-sib">已有孩子的名字</label>
-        <input
+        <HanInput
           id="f-sib"
-          className="input"
           value={prefs.siblingName}
+          maxChars={4}
           placeholder="填了之后新名字会尽量和哥哥姐姐呼应"
-          onChange={(e) => onChange({ siblingName: e.target.value })}
+          onChange={(siblingName) => onChange({ siblingName })}
         />
       </div>
 

@@ -60,7 +60,7 @@ npm run dev
 其它命令：
 
 ```bash
-npm test        # 78 条测试
+npm test        # 90 条测试
 npm run build   # 生产构建
 npm run preview # 预览生产构建
 ```
