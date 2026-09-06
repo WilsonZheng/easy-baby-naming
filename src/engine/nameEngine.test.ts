@@ -126,18 +126,31 @@ describe('软条件按偏好生效', () => {
     }
   })
 
+  // 抽样是带随机性的，单个 seed 的样本会被噪声淹没。
+  // 偏好生效与否要跨多个 seed 取平均才测得准。
+  function sample(over: Partial<Prefs>, seeds = 8) {
+    const out = []
+    for (let seed = 0; seed < seeds; seed++) {
+      out.push(...generateNames({ prefs: prefs(over), targetElement: null, seed, count: 12 }))
+    }
+    return out
+  }
+
   it('开启英语好念优先时，平均可读性高于关闭时', () => {
-    const on = generateNames({ prefs: prefs({ englishFriendly: true }), targetElement: null, seed: 17, count: 20 })
-    const off = generateNames({ prefs: prefs({ englishFriendly: false }), targetElement: null, seed: 17, count: 20 })
-    const avg = (xs: typeof on) => xs.reduce((a, n) => a + n.readability.score, 0) / xs.length
-    expect(avg(on)).toBeGreaterThan(avg(off))
+    const avg = (xs: ReturnType<typeof sample>) =>
+      xs.reduce((a, n) => a + n.readability.score, 0) / xs.length
+    expect(avg(sample({ englishFriendly: true }))).toBeGreaterThan(avg(sample({ englishFriendly: false })))
   })
 
-  it('开启易写优先时，平均笔画数下降', () => {
-    const on = generateNames({ prefs: prefs({ easyToWrite: true }), targetElement: null, seed: 18, count: 20 })
-    const off = generateNames({ prefs: prefs({ easyToWrite: false }), targetElement: null, seed: 18, count: 20 })
-    const avg = (xs: typeof on) => xs.reduce((a, n) => a + n.totalStrokes, 0) / xs.length
-    expect(avg(on)).toBeLessThan(avg(off))
+  it('开启易写优先时，平均笔画明显下降，而不是只差一两画', () => {
+    const avg = (xs: ReturnType<typeof sample>) =>
+      xs.reduce((a, n) => a + n.totalStrokes, 0) / xs.length
+    const on = sample({ easyToWrite: true })
+    const off = sample({ easyToWrite: false })
+    expect(avg(off) - avg(on)).toBeGreaterThan(2)
+    // 最费劲的那个也该被压下来
+    expect(Math.max(...on.map((n) => n.totalStrokes)))
+      .toBeLessThan(Math.max(...off.map((n) => n.totalStrokes)))
   })
 })
 
@@ -273,5 +286,58 @@ describe('出处只在两个字本来就成词时才算关联', () => {
   it('凶意的句子一律不算', () => {
     // 「惟草木之零落兮，恐美人之迟暮」里「落」「暮」不相邻也不该被采用
     expect(findSourceSameClause('零', '落')).toBeUndefined()
+  })
+})
+
+describe('高危姓氏的谐音拦截', () => {
+  it('吴姓不会配出「无知」「无心」「无言」这类读音', () => {
+    const seen = new Set<string>()
+    for (let seed = 0; seed < 12; seed++) {
+      const out = generateNames({
+        prefs: prefs({ surname: '吴' }), targetElement: null, seed, count: 40,
+      })
+      for (const n of out) {
+        seen.add(n.given)
+        expect(n.homophones.filter((h) => h.level === 'block'), n.full).toHaveLength(0)
+      }
+    }
+    // 这些名字本身都很好，但配上吴姓会读成无知/无心/无言/无德
+    for (const bad of ['知远', '心远', '言之', '德言']) {
+      expect(seen.has(bad), `吴${bad} 不该出现`).toBe(false)
+    }
+    // 拦掉这些之后仍然有足够多的候选可选
+    expect(seen.size).toBeGreaterThan(150)
+  })
+
+  it('史姓不会配出不雅读音，且仍有足够候选', () => {
+    const seen = new Set<string>()
+    for (let seed = 0; seed < 6; seed++) {
+      const out = generateNames({
+        prefs: prefs({ surname: '史' }), targetElement: null, seed, count: 40,
+      })
+      for (const n of out) {
+        seen.add(n.given)
+        expect(n.homophones.filter((h) => h.level === 'block'), n.full).toHaveLength(0)
+      }
+    }
+    expect(seen.size).toBeGreaterThan(80)
+  })
+})
+
+describe('英语可读性不该误报', () => {
+  it('sh 和 ch 不算障碍：英语本来就有这两个音', () => {
+    expect(assessReadability(['shū']).issues).toHaveLength(0)
+    expect(assessReadability(['chéng']).issues).toHaveLength(0)
+  })
+
+  it('ao 不算障碍：英语的 how 就是这个音', () => {
+    expect(assessReadability(['hào']).issues).toHaveLength(0)
+  })
+
+  it('真正读不出来的仍然要标出来', () => {
+    expect(assessReadability(['xù']).issues.length).toBeGreaterThan(0)
+    expect(assessReadability(['qiān']).issues.length).toBeGreaterThan(0)
+    expect(assessReadability(['lǚ']).issues.length).toBeGreaterThan(0)
+    expect(assessReadability(['zhì']).issues.length).toBeGreaterThan(0)
   })
 })

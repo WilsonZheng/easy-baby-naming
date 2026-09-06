@@ -6,6 +6,11 @@
 
 👉 **[打开应用](https://wilsonzheng.github.io/easy-baby-naming/)**
 
+<p align="center">
+  <img src="docs/screenshot-list.png" alt="名字列表" width="330">
+  <img src="docs/screenshot-detail.png" alt="名字详情" width="330">
+</p>
+
 ---
 
 ## 它解决什么问题
@@ -55,7 +60,7 @@ npm run dev
 其它命令：
 
 ```bash
-npm test        # 67 条测试
+npm test        # 78 条测试
 npm run build   # 生产构建
 npm run preview # 预览生产构建
 ```
@@ -67,7 +72,7 @@ React 19 + TypeScript + Vite，手写 CSS（无 UI 框架），Vitest + Testing 
 
 ## 数据来源
 
-- 取名用字 378 个，五行按字形部首归类（这只是众多流派中的一种，界面里有说明）
+- 取名用字 378 个，另有人工精选的双字名 415 个；五行按字形部首归类（这只是众多流派中的一种，界面里有说明）
 - 典籍 96 句，全部为先秦至宋代的公有领域文本；其中 13 句讲凋零、离别、死亡的做了标记，永不引用
 - 英文名 239 个，含义与语源为公开的语言学事实
 

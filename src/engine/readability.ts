@@ -22,11 +22,11 @@ const INITIAL_TRAPS: Record<string, { level: ReadIssueLevel; heardAs: string; no
   x: { level: 'hard', heardAs: '「克斯」或「兹」', note: 'x 在英语里读 /ks/ 或 /z/，几乎没人会读成 ㄒ' },
   q: { level: 'hard', heardAs: '「垮」音（kw）', note: 'q 在英语里几乎总是跟 u 连读成 /kw/' },
   c: { level: 'hard', heardAs: '「克」或「斯」', note: 'c 在英语里读 /k/ 或 /s/，读不出 ㄘ' },
-  zh: { level: 'medium', heardAs: '「兹」', note: 'zh 会被简化成 /z/，卷舌丢失' },
-  z: { level: 'medium', heardAs: '「兹」', note: 'z 读 /z/，不是 ㄗ' },
+  zh: { level: 'medium', heardAs: '「兹」的音', note: 'zh 会被简化成 /z/，卷舌丢失' },
+  z: { level: 'medium', heardAs: '「兹」的音', note: 'z 在英语里读 /z/，读不出 ㄗ 的送气' },
   r: { level: 'medium', heardAs: '英语的 r', note: '英语 r 与普通话的 r 舌位不同，听感偏软' },
-  ch: { level: 'medium', heardAs: '「差」', note: '大致读得出来，卷舌会丢' },
-  sh: { level: 'medium', heardAs: '「西」', note: '大致读得出来，卷舌会丢' },
+  // sh 和 ch 不列为障碍：英语本来就有 /ʃ/ 和 /tʃ/（ship、chip），
+  // 只是少了卷舌，绝大多数人听不出差别。标出来只会制造噪音。
 }
 
 /** 韵母：英语拼读规则会把它们读成完全不同的音。 */
@@ -43,7 +43,7 @@ const FINAL_TRAPS: Record<string, { level: ReadIssueLevel; heardAs: string; note
   uo: { level: 'medium', heardAs: '「乌欧」', note: '会被拆成两个音节' },
   ou: { level: 'medium', heardAs: '「欧」或「乌」', note: 'ou 在英语里有 /aʊ/、/uː/、/ʌ/ 多种读法，很不稳定' },
   uai: { level: 'medium', heardAs: '「歪」', note: '多音节滑音，容易读乱' },
-  ao: { level: 'medium', heardAs: '「诶欧」', note: '英语里 ao 少见，容易被拆开读' },
+  // ao 不列：英语母语者会读成 /aʊ/（how），和普通话的 ao 很接近
 }
 
 /** 卷舌韵：zhi chi shi ri zi ci si 的 i 是特殊的舌尖元音。 */

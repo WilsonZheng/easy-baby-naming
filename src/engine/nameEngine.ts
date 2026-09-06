@@ -256,9 +256,15 @@ export function generateNames(opts: GenerateOptions): NameCandidate[] {
     // 笔画
     const totalStrokes = entries.reduce((a, e) => a + e.strokes, 0)
     if (prefs.easyToWrite) {
-      const delta = totalStrokes <= 16 ? 8 : totalStrokes <= 24 ? 0 : -10
+      // 连续加权而不是分三档：三档的幅度压不过「精选」加权，
+      // 结果就是开关拨了等于没拨。
+      const delta = Math.max(-20, Math.min(16, Math.round((18 - totalStrokes) * 1.6)))
       score += delta
-      breakdown.push({ label: '学写难度', value: delta, detail: `名字共 ${totalStrokes} 画` })
+      breakdown.push({
+        label: '学写难度',
+        value: delta,
+        detail: `名字共 ${totalStrokes} 画，${totalStrokes <= 14 ? '孩子练起来轻松' : totalStrokes <= 22 ? '中等' : '写起来比较费劲'}`,
+      })
     }
 
     // 五行
@@ -383,31 +389,48 @@ export function generateNames(opts: GenerateOptions): NameCandidate[] {
     }
   }
 
-  results.sort((a, b) => b.raw - a.raw)
-
-  // 「换一批」要真的换一批：在质量相当的前段里按 seed 重新洗牌，
-  // 而不是每次都返回分数最高的那几个。
-  const shortlist = results.slice(0, Math.max(count * 8, 96))
-  for (let i = shortlist.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1))
-    ;[shortlist[i], shortlist[j]] = [shortlist[j], shortlist[i]]
-  }
+  // 「换一批」要真的换一批，但不能靠均匀洗牌 —— 那会把分数的作用整个抹掉，
+  // 用户拨了「优先少笔画」「补某个五行」就看不出区别。
+  //
+  // 改成按分数做 softmax 加权抽样：分数每高 TEMPERATURE 分，被抽中的概率
+  // 就多一个 e 倍。高分名字明显更容易出现，低分的仍有机会，
+  // 于是「变化」和「偏好真的生效」可以同时成立。
+  const TEMPERATURE = 7
+  const ranked = results.slice(0, Math.max(count * 20, 240))
+  const topScore = ranked.length ? ranked[0].raw : 0
+  const weights = ranked.map((r) => Math.exp((r.raw - topScore) / TEMPERATURE))
 
   // 多样化：首字和尾字各自最多出现两次。
   // 只管首字是不够的 —— 「远」这类万能后字会让一屏名字全是「x远」。
   const firstCount = new Map<string, number>()
   const lastCount = new Map<string, number>()
   const picked: NameCandidate[] = []
-  for (const r of shortlist) {
-    const given = r.candidate.given
+  const taken = new Set<number>()
+  let remaining = weights.reduce((a, w) => a + w, 0)
+
+  // 最多试 pool.length 轮：每轮抽一个，抽不合适就把它排除后继续
+  for (let attempt = 0; attempt < ranked.length && picked.length < count; attempt++) {
+    if (remaining <= 0) break
+    let target = rand() * remaining
+    let idx = -1
+    for (let i = 0; i < ranked.length; i++) {
+      if (taken.has(i)) continue
+      target -= weights[i]
+      if (target <= 0) { idx = i; break }
+    }
+    if (idx < 0) break
+    taken.add(idx)
+    remaining -= weights[idx]
+
+    const candidate = ranked[idx].candidate
+    const given = candidate.given
     const first = given[0]
     const last = given[given.length - 1]
     if ((firstCount.get(first) ?? 0) >= 2) continue
     if (given.length > 1 && (lastCount.get(last) ?? 0) >= 2) continue
     firstCount.set(first, (firstCount.get(first) ?? 0) + 1)
     if (given.length > 1) lastCount.set(last, (lastCount.get(last) ?? 0) + 1)
-    picked.push(r.candidate)
-    if (picked.length >= count) break
+    picked.push(candidate)
   }
   return picked
 }
