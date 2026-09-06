@@ -46,15 +46,38 @@ const ONLY_CURATED = new Set([
 ])
 
 /**
+ * 抽象意象重合才说明两个字是「一路的」。
+ *
+ * 具体名词只是同类不代表能拼成词：「帆」和「泠」都属水，但「帆泠」不成词；
+ * 「山」和「柳」都属自然，「山柳」是植物名不是人名。
+ * 这类组合交给人工精选表，自由组合不碰。
+ */
+const ABSTRACT_TAGS = new Set([
+  'light', 'wise', 'strong', 'grace', 'peace', 'joy', 'pure', 'noble',
+  'true', 'hope', 'honor', 'life', 'new', 'youth', 'gift', 'whole',
+  'love', 'beauty', 'music', 'star', 'dawn',
+])
+
+/**
+ * 这个字是不是「纯具体名词」—— 有意象标签，但全是实物类。
+ * 万能前后字对它们不成立：「清和」通，「素屿」不通；「志远」通，「棠远」不通。
+ */
+function isConcreteNoun(char: string): boolean {
+  const tags = semanticsOf(char)
+  return tags.length > 0 && tags.every((t) => !ABSTRACT_TAGS.has(t))
+}
+
+/**
  * 两个字合起来讲不讲得通。
  * 光看单字都是好字，凑一起可能毫无关系（「京卷」「柏域」）。
- * 通过条件：意象同类、同出一句典籍、或者有一个是万能前后字。
+ * 通过条件：抽象意象同类、同一分句里同出一处典籍、或者有一个是万能前后字
+ * 且另一个不是纯具体名词。
  */
 function hasKinship(a: CharEntry, b: CharEntry): boolean {
-  if (SUFFIX_CHARS.has(b.char) || PREFIX_CHARS.has(a.char)) return true
-  const semA = semanticsOf(a.char)
-  const semB = semanticsOf(b.char)
-  if (semA.some((t) => semB.includes(t))) return true
+  if (SUFFIX_CHARS.has(b.char) && !isConcreteNoun(a.char)) return true
+  if (PREFIX_CHARS.has(a.char) && !isConcreteNoun(b.char)) return true
+  const semB = new Set(semanticsOf(b.char))
+  if (semanticsOf(a.char).some((t) => ABSTRACT_TAGS.has(t) && semB.has(t))) return true
   return !!findSourceSameClause(a.char, b.char)
 }
 
@@ -370,14 +393,19 @@ export function generateNames(opts: GenerateOptions): NameCandidate[] {
     ;[shortlist[i], shortlist[j]] = [shortlist[j], shortlist[i]]
   }
 
-  // 多样化：同一个首字最多出现两次，避免整屏都是「清x」
-  const firstCharCount = new Map<string, number>()
+  // 多样化：首字和尾字各自最多出现两次。
+  // 只管首字是不够的 —— 「远」这类万能后字会让一屏名字全是「x远」。
+  const firstCount = new Map<string, number>()
+  const lastCount = new Map<string, number>()
   const picked: NameCandidate[] = []
   for (const r of shortlist) {
-    const first = r.candidate.given[0]
-    const n = firstCharCount.get(first) ?? 0
-    if (n >= 2) continue
-    firstCharCount.set(first, n + 1)
+    const given = r.candidate.given
+    const first = given[0]
+    const last = given[given.length - 1]
+    if ((firstCount.get(first) ?? 0) >= 2) continue
+    if (given.length > 1 && (lastCount.get(last) ?? 0) >= 2) continue
+    firstCount.set(first, (firstCount.get(first) ?? 0) + 1)
+    if (given.length > 1) lastCount.set(last, (lastCount.get(last) ?? 0) + 1)
     picked.push(r.candidate)
     if (picked.length >= count) break
   }

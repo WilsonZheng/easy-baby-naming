@@ -146,14 +146,24 @@ export function findSource(a: string, b: string): SourceEntry | undefined {
  *
  * 「等闲识得东风面，万紫千红总是春」里确实先有「风」后有「春」，
  * 但它们分属两个分句、两个意象，拼成「风春」并不成词。
+ *
+ * 还要求两个字在句中相邻或几乎相邻（间隔不超过两个字）—— 那才说明它们
+ * 本来就构成一个词。「春江潮水连海平」里的「春江」算，
+ * 「春风又绿江南岸」里隔着三个字的「风…江」不算。
+ *
  * 判断「这两个字本来就是一路的」用这一档；仅仅展示引用用宽的那一档。
  */
+const MAX_KINSHIP_GAP = 2
+
 export function findSourceSameClause(a: string, b: string): SourceEntry | undefined {
   return SOURCES.find((s) => {
     if (s.inauspicious || !s.chars.has(a) || !s.chars.has(b)) return false
     return s.clauses.some((c) => {
-      const i = c.indexOf(a)
-      return i >= 0 && i < c.lastIndexOf(b)
+      for (let i = c.indexOf(a); i >= 0; i = c.indexOf(a, i + 1)) {
+        const j = c.indexOf(b, i + 1)
+        if (j > i && j - i <= MAX_KINSHIP_GAP) return true
+      }
+      return false
     })
   })
 }

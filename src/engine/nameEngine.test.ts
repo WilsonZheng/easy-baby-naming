@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { BANNED_COMBOS, generateNames, PREFIX_CHARS, SUFFIX_CHARS } from './nameEngine'
-import { SOURCES, findSource } from '../data/sources'
+import { SOURCES, findSource, findSourceSameClause } from '../data/sources'
 import { CURATED_SET } from '../data/curatedNames'
 import { semanticsOf } from './semantics'
 import { DEFAULT_PREFS, type Prefs } from '../types'
@@ -229,5 +229,49 @@ describe('出处的字序', () => {
         }
       }
     }
+  })
+})
+
+describe('一屏名字要有变化', () => {
+  it('同一个首字最多出现两次', () => {
+    for (const seed of [1, 50, 900]) {
+      const out = generateNames({ prefs: prefs(), targetElement: null, seed, count: 12 })
+      const counts = new Map<string, number>()
+      for (const n of out) counts.set(n.given[0], (counts.get(n.given[0]) ?? 0) + 1)
+      expect(Math.max(...counts.values())).toBeLessThanOrEqual(2)
+    }
+  })
+
+  it('同一个尾字最多出现两次：不能一屏都是「x远」', () => {
+    for (const seed of [1, 50, 900]) {
+      for (const gender of ['boy', 'girl', 'neutral'] as const) {
+        const out = generateNames({ prefs: prefs({ gender }), targetElement: null, seed, count: 12 })
+        const counts = new Map<string, number>()
+        for (const n of out) {
+          const last = n.given[n.given.length - 1]
+          counts.set(last, (counts.get(last) ?? 0) + 1)
+        }
+        expect(Math.max(...counts.values()), `seed ${seed} / ${gender}`).toBeLessThanOrEqual(2)
+      }
+    }
+  })
+})
+
+describe('出处只在两个字本来就成词时才算关联', () => {
+  it('相邻的算：「春江潮水连海平」支持「春江」', () => {
+    expect(findSourceSameClause('春', '江')).toBeTruthy()
+  })
+
+  it('隔太远的不算：「春风又绿江南岸」不支持「风江」', () => {
+    expect(findSourceSameClause('风', '江')).toBeUndefined()
+  })
+
+  it('跨分句的不算：「等闲识得东风面，万紫千红总是春」不支持「风春」', () => {
+    expect(findSourceSameClause('风', '春')).toBeUndefined()
+  })
+
+  it('凶意的句子一律不算', () => {
+    // 「惟草木之零落兮，恐美人之迟暮」里「落」「暮」不相邻也不该被采用
+    expect(findSourceSameClause('零', '落')).toBeUndefined()
   })
 })

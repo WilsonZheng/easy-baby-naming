@@ -5,10 +5,8 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# 本仓库的 Pages 用「从分支部署」模式，源是 gh-pages。
-# 这条流水线负责把 dist/ 推到那个分支，GitHub 随后自动发布。
-permissions:
-  contents: write
+# 默认不给任何权限，需要的在 job 级别单独声明
+permissions: {}
 
 concurrency:
   group: pages
@@ -17,6 +15,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # 只有这个 job 拿得到写权限，且只用来推 gh-pages 分支
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -36,15 +37,24 @@ jobs:
       - name: 构建
         run: npm run build
 
-      # 关掉 Jekyll，否则 Pages 会忽略下划线开头的文件
-      - run: touch dist/.nojekyll
-
+      # 本仓库的 Pages 用「从分支部署」模式，源是 gh-pages。
+      # 这里用几行 git 自己推，不引入第三方 action —— 部署这一步握着
+      # contents: write，能少一个供应链依赖就少一个。
       - name: 发布到 gh-pages 分支
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
-          user_name: github-actions[bot]
-          user_email: github-actions[bot]@users.noreply.github.com
-          commit_message: ${{ github.event.head_commit.message }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # 关掉 Jekyll，否则 Pages 会忽略下划线开头的文件
+          touch dist/.nojekyll
+          cd dist
+          git init -q
+          git checkout -qb gh-pages
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          # 提交信息只用不可控字符串 + SHA，绝不插值 commit message
+          git commit -qm "部署 ${GITHUB_SHA}"
+          git push -q --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            gh-pages
