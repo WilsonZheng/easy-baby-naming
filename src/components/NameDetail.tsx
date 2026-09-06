@@ -3,20 +3,24 @@ import type { NameCandidate, Prefs } from '../types'
 import { Sheet } from './Sheet'
 import { readabilityLabel } from '../engine/readability'
 import { checkFullEnglishName, pairEnglishNames, toRomanized } from '../engine/englishEngine'
+import type { AiState } from '../ai/useAi'
 
 interface Props {
   candidate: NameCandidate | null
   prefs: Prefs
   favorited: boolean
   savedEnglishName: string | null
+  ai: AiState
+  onOpenAiSettings: () => void
   onClose: () => void
   onToggleFavorite: (englishName: string | null) => void
 }
 
 export function NameDetail({
-  candidate: n, prefs, favorited, savedEnglishName, onClose, onToggleFavorite,
+  candidate: n, prefs, favorited, savedEnglishName, ai, onOpenAiSettings, onClose, onToggleFavorite,
 }: Props) {
   const [picked, setPicked] = useState<string | null>(savedEnglishName)
+  const [aiText, setAiText] = useState<string | null>(null)
 
   const pairs = useMemo(
     () => (n ? pairEnglishNames(n.given, n.chars.map((c) => c.pinyin), prefs.gender, prefs.enStyle, 6) : []),
@@ -86,6 +90,35 @@ export function NameDetail({
           <p className="field hint" style={{ marginTop: 6 }}>
             两个字都出现在这一句里，不是拼凑上去的。
           </p>
+        </>
+      )}
+
+      <h3 style={{ margin: '20px 0 10px', fontSize: 14 }}>换个说法讲讲这个名字</h3>
+      {aiText ? (
+        <div className="note info" style={{ lineHeight: 1.8 }}>
+          {aiText}
+          <div style={{ marginTop: 8, fontSize: 11.5, opacity: .8 }}>
+            这段由 AI 基于上面那些已经算好的资料写的，出处和字义仍以上面为准。
+          </div>
+        </div>
+      ) : (
+        <>
+          <button
+            className="btn block"
+            disabled={ai.loading}
+            onClick={async () => {
+              if (!ai.ready) { onOpenAiSettings(); return }
+              const t = await ai.explainName(n)
+              if (t) setAiText(t)
+            }}
+          >
+            {ai.loading ? '正在写…' : ai.ready ? '让 AI 解读一下' : '让 AI 解读一下（需要先设置）'}
+          </button>
+          {ai.error && (
+            <div className="note danger" style={{ marginTop: 8 }}>
+              {ai.error.message}{ai.error.hint ? `。${ai.error.hint}` : ''}
+            </div>
+          )}
         </>
       )}
 

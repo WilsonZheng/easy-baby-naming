@@ -6,6 +6,8 @@ import { History } from './pages/History'
 import { Guide } from './pages/Guide'
 import { SharedView } from './pages/SharedView'
 import { useAppState } from './store/useAppState'
+import { useAi } from './ai/useAi'
+import { AiSettingsSheet } from './components/AiSettingsSheet'
 import { decodeShare, type SharePayload } from './store/share'
 import { DEFAULT_PREFS, type Prefs } from './types'
 
@@ -27,10 +29,12 @@ export default function App() {
   const {
     state, toggleFavorite, removeFavorite, updateFavorite,
     toggleCompare, clearCompare, pushHistory, clearHistory, clearAll,
-    setTheme, setLastPrefs, importData,
+    setTheme, setLastPrefs, importData, setAi,
   } = useAppState()
 
   const [tab, setTab] = useState<Tab>('studio')
+  const [openAiSettings, setOpenAiSettings] = useState(false)
+  const ai = useAi(state.aiKey, state.aiModel)
   const [shared, setShared] = useState<SharePayload | null>(() => readShareFromHash())
   const [prefs, setPrefs] = useState<Prefs>(() => {
     try {
@@ -118,6 +122,8 @@ export default function App() {
             favorites={state.favorites}
             onToggleFavorite={toggleFavorite}
             onGenerated={onGenerated}
+            ai={ai}
+            onOpenAiSettings={() => setOpenAiSettings(true)}
           />
         )}
 
@@ -129,6 +135,8 @@ export default function App() {
             onUpdate={updateFavorite}
             onToggleCompare={toggleCompare}
             onClearCompare={clearCompare}
+            ai={ai}
+            onOpenAiSettings={() => setOpenAiSettings(true)}
           />
         )}
 
@@ -147,6 +155,17 @@ export default function App() {
             <Guide />
             <div className="col" style={{ paddingBottom: 32 }}>
               <div className="switch-row" style={{ borderTop: '1px solid var(--line)' }}>
+                <div>
+                  <div className="label">AI 功能</div>
+                  <div className="desc">
+                    {state.aiKey ? `已连上 OpenRouter · ${state.aiModel.split('/').pop()}` : '未开启，本站完全离线运行'}
+                  </div>
+                </div>
+                <button className="chip sm" onClick={() => setOpenAiSettings(true)}>
+                  {state.aiKey ? '修改' : '开启'}
+                </button>
+              </div>
+              <div className="switch-row">
                 <div>
                   <div className="label">外观</div>
                   <div className="desc">现在是{themeLabel}</div>
@@ -184,6 +203,14 @@ export default function App() {
           </button>
         ))}
       </nav>
+
+      <AiSettingsSheet
+        open={openAiSettings}
+        apiKey={state.aiKey}
+        model={state.aiModel}
+        onSave={setAi}
+        onClose={() => setOpenAiSettings(false)}
+      />
     </div>
   )
 }

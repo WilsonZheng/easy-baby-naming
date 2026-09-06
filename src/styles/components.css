@@ -120,6 +120,11 @@
   /* 右侧淡出，提示还能横向滑 */
   mask-image: linear-gradient(to right, #000 88%, transparent 100%);
 }
+.quickbar .ai-btn {
+  flex: none;
+  border-color: var(--line-2);
+  font-weight: 600;
+}
 .quickbar .more-btn {
   flex: none;
   border-color: var(--jade-line);

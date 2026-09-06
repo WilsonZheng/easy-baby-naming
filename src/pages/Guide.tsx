@@ -112,6 +112,35 @@ export function Guide() {
         </ol>
       </div>
 
+      <h2 style={{ fontSize: 15, margin: '24px 0 10px' }}>关于 AI 功能</h2>
+      <div className="guide-item">
+        <p>
+          AI 是<strong>可选的</strong>，默认关闭。不开它，整个网站完全离线运行。
+          开启需要你自己的 OpenRouter API Key，用免费模型不需要充值。
+        </p>
+        <p style={{ marginTop: 8 }}>
+          三个功能都刻意做成「AI 只负责表达，判断仍然由本地引擎给出」：
+        </p>
+        <ul style={{ margin: '8px 0 0', paddingLeft: 18, fontSize: 13.5, lineHeight: 1.85, color: 'var(--ink-2)' }}>
+          <li><b>说一句话设条件</b>：把你的描述翻译成筛选条件。名字仍由本地引擎生成，
+            AI 给的每个条件都会先经过白名单校验，不合法的当场丢掉并告诉你丢了什么。</li>
+          <li><b>解读一个名字</b>：基于本站已经算好的字义和出处写一段话。
+            提示词里明确禁止它编造典故 —— 资料里没有出处，它就不能说有。</li>
+          <li><b>点评你的心选</b>：把候选名单和已算好的资料给它，让它比较并给倾向性建议。</li>
+        </ul>
+        <div className="example" style={{ borderLeftColor: 'var(--amber-line)' }}>
+          <strong>开启 AI 就意味着数据会离开这台设备。</strong>
+          你在「说一句话」里写的原文、让 AI 解读的名字、让 AI 点评的收藏名单（含你写的备注），
+          都会发送到 OpenRouter 和你选的模型提供商。
+          出生日期、时间、城市和排出来的八字不会随这些功能发出去。
+          API Key 只存在本机浏览器里，也不会写进导出的备份文件。
+        </div>
+        <div className="example">
+          说到底，AI 在这里是个表达层。名字好不好、有没有谐音事故、英语里怎么念，
+          这些结论仍然来自可核对的规则，不来自模型。
+        </div>
+      </div>
+
       <h2 style={{ fontSize: 15, margin: '24px 0 10px' }}>这个工具做不到什么</h2>
       <div className="guide-item">
         <p>
@@ -122,6 +151,7 @@ export function Guide() {
           <li>全国重名数据库 —— 「少见用字」是基于用字频率的估计，不是真实的重名率。</li>
           <li>专业八字排盘的旺衰喜忌判断 —— 那需要真正的命理师，不是一段代码。</li>
           <li>跨设备云同步 —— 数据只在这台设备上，换设备请用「导出备份」。</li>
+          <li>AI 也不会替你做决定 —— 它没见过你的孩子，也不知道你家里的讲究。</li>
         </ul>
       </div>
 

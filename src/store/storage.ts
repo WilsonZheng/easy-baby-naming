@@ -1,3 +1,5 @@
+import { DEFAULT_MODEL } from '../ai/openrouter'
+
 /**
  * 全部数据只存在这台设备的 localStorage 里，不上传任何服务器。
  * localStorage 不可用时（隐私模式、被浏览器限制）自动退化成仅本次会话有效，
@@ -34,6 +36,12 @@ export interface PersistedState {
   lastPrefsJson: string | null
   theme: 'light' | 'dark' | 'system'
   seenGuide: boolean
+  /**
+   * OpenRouter 的 API Key。只存在这台设备的浏览器里，请求直接发往 openrouter.ai。
+   * 备份导出时会剔掉，免得 key 跟着文件到处跑。
+   */
+  aiKey: string
+  aiModel: string
 }
 
 export const EMPTY_STATE: PersistedState = {
@@ -44,6 +52,8 @@ export const EMPTY_STATE: PersistedState = {
   lastPrefsJson: null,
   theme: 'system',
   seenGuide: false,
+  aiKey: '',
+  aiModel: DEFAULT_MODEL,
 }
 
 let storageWorks = true
@@ -113,6 +123,7 @@ export interface BackupFile {
   history: HistoryEntry[]
 }
 
+/** 备份里刻意不含 API Key —— 备份文件会被到处传，key 不该跟着走。 */
 export function buildBackup(state: PersistedState): BackupFile {
   return {
     app: 'namebridge',

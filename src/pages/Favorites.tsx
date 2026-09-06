@@ -6,6 +6,7 @@ import { CHAR_MAP } from '../data/characters'
 import { assessReadability } from '../engine/readability'
 import { ENGLISH_NAME_MAP } from '../data/englishNames'
 import type { Favorite } from '../store/storage'
+import type { AiState } from '../ai/useAi'
 
 interface Props {
   favorites: Favorite[]
@@ -14,12 +15,16 @@ interface Props {
   onUpdate: (id: string, patch: Partial<Favorite>) => void
   onToggleCompare: (id: string) => void
   onClearCompare: () => void
+  ai: AiState
+  onOpenAiSettings: () => void
 }
 
 export function Favorites({
-  favorites, compare, onRemove, onUpdate, onToggleCompare, onClearCompare,
+  favorites, compare, onRemove, onUpdate, onToggleCompare, onClearCompare, ai, onOpenAiSettings,
 }: Props) {
   const [showCompare, setShowCompare] = useState(false)
+  const [showReview, setShowReview] = useState(false)
+  const [review, setReview] = useState<string | null>(null)
   const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState<Favorite | null>(null)
@@ -83,6 +88,21 @@ export function Favorites({
         </button>
         <button className="btn" style={{ flex: 1 }} onClick={share}>生成分享链接</button>
       </div>
+
+      <button
+        className="btn block"
+        style={{ marginBottom: 14 }}
+        disabled={ai.loading}
+        onClick={async () => {
+          if (!ai.ready) { onOpenAiSettings(); return }
+          setShowReview(true)
+          setReview(null)
+          const t = await ai.reviewFavorites(favorites)
+          if (t) setReview(t)
+        }}
+      >
+        {ai.loading ? '正在读你的名单…' : '✨ 让 AI 读一遍并给建议'}
+      </button>
 
       {picked.length === 1 && (
         <div className="note" style={{ marginBottom: 12 }}>
@@ -231,6 +251,29 @@ export function Favorites({
           />
           <div className="hint">链接会比较长，因为名单本身就在里面。微信里可以直接发。</div>
         </div>
+      </Sheet>
+
+      <Sheet
+        open={showReview}
+        title="AI 读了你的名单"
+        onClose={() => setShowReview(false)}
+        footer={<button className="btn primary block" onClick={() => setShowReview(false)}>知道了</button>}
+      >
+        {ai.loading && <div className="note">正在读这 {favorites.length} 个名字…免费模型有时要等十几秒。</div>}
+        {ai.error && (
+          <div className="note danger">
+            {ai.error.message}{ai.error.hint ? `。${ai.error.hint}` : ''}
+          </div>
+        )}
+        {review && (
+          <>
+            <div style={{ fontSize: 14, lineHeight: 1.85, whiteSpace: 'pre-wrap' }}>{review}</div>
+            <div className="note" style={{ marginTop: 16 }}>
+              这段是 AI 基于本站已经算好的字义、读音、谐音资料写的。
+              它给的是一个视角，不是定论 —— 名字最后是你们自己的决定。
+            </div>
+          </>
+        )}
       </Sheet>
 
       <Sheet

@@ -5,6 +5,7 @@ import { NameDetail } from '../components/NameDetail'
 import { EnglishDetail } from '../components/EnglishDetail'
 import { FiltersSheet } from '../components/FiltersSheet'
 import { HanInput } from '../components/HanInput'
+import { AiAskSheet } from '../components/AiAskSheet'
 import { Empty } from '../components/ui'
 import { generate } from '../engine/nameEngine'
 import { filterEnglishNames, pairChineseForEnglish, pairEnglishNames } from '../engine/englishEngine'
@@ -13,6 +14,7 @@ import { SURNAME_MAP } from '../data/surnames'
 import type { EnglishName } from '../data/englishNames'
 import type { NameCandidate, Prefs } from '../types'
 import type { Favorite } from '../store/storage'
+import type { AiState } from '../ai/useAi'
 
 interface Props {
   prefs: Prefs
@@ -20,6 +22,8 @@ interface Props {
   favorites: Favorite[]
   onToggleFavorite: (fav: Favorite) => void
   onGenerated: (summary: string, seed: number) => void
+  ai: AiState
+  onOpenAiSettings: () => void
 }
 
 const STYLE_SHORTCUTS = [
@@ -42,9 +46,12 @@ const BATCH = 12
 /** 英文名模式下，用来给英文名做配对的中文候选池 */
 const ZH_POOL_FOR_PAIRING = 120
 
-export function Studio({ prefs, onPrefsChange, favorites, onToggleFavorite, onGenerated }: Props) {
+export function Studio({
+  prefs, onPrefsChange, favorites, onToggleFavorite, onGenerated, ai, onOpenAiSettings,
+}: Props) {
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9))
   const [openFilters, setOpenFilters] = useState(false)
+  const [openAsk, setOpenAsk] = useState(false)
   const [detail, setDetail] = useState<NameCandidate | null>(null)
   const [enDetail, setEnDetail] = useState<EnglishName | null>(null)
   /** 这一轮条件下已经看过的中文名，「换一批」时不再出现 */
@@ -243,6 +250,9 @@ export function Studio({ prefs, onPrefsChange, favorites, onToggleFavorite, onGe
                       onClick={() => onPrefsChange({ style: s.value })}>{s.label}</button>
                   ))}
             </div>
+            <button className="chip sm ai-btn" onClick={() => setOpenAsk(true)}>
+              ✨ 说一句话
+            </button>
             <button className="chip sm more-btn" onClick={() => setOpenFilters(true)}>
               更多条件{activeExtraCount(prefs) > 0 ? ` ${activeExtraCount(prefs)}` : ''}
             </button>
@@ -346,11 +356,21 @@ export function Studio({ prefs, onPrefsChange, favorites, onToggleFavorite, onGe
         onClose={() => setOpenFilters(false)}
       />
 
+      <AiAskSheet
+        open={openAsk}
+        ai={ai}
+        onApply={onPrefsChange}
+        onClose={() => setOpenAsk(false)}
+        onOpenSettings={() => { setOpenAsk(false); onOpenAiSettings() }}
+      />
+
       <NameDetail
         candidate={detail}
         prefs={prefs}
         favorited={detail ? favIds.has(detail.id) : false}
         savedEnglishName={detail ? favorites.find((f) => f.id === detail.id)?.englishName ?? null : null}
+        ai={ai}
+        onOpenAiSettings={onOpenAiSettings}
         onClose={() => setDetail(null)}
         onToggleFavorite={(en2) => detail && onToggleFavorite(makeFavorite(detail, en2))}
       />

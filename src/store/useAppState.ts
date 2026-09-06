@@ -118,6 +118,10 @@ export function useAppState() {
 
   const markGuideSeen = useCallback(() => set((cur) => ({ ...cur, seenGuide: true })), [])
 
+  const setAi = useCallback((patch: { aiKey?: string; aiModel?: string }) => {
+    set((cur) => ({ ...cur, ...patch }))
+  }, [])
+
   const importData = useCallback((favorites: Favorite[], history: HistoryEntry[]) => {
     set((cur) => {
       const map = new Map(cur.favorites.map((f) => [f.id, f]))
@@ -147,5 +151,6 @@ export function useAppState() {
     setLastPrefs,
     markGuideSeen,
     importData,
+    setAi,
   }
 }
