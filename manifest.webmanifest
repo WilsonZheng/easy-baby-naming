@@ -1,0 +1,14 @@
+{
+  "name": "名渡 Namebridge",
+  "short_name": "名渡",
+  "description": "海外华人宝宝取名工具，完全本地运行",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f2",
+  "theme_color": "#0e6a5a",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
