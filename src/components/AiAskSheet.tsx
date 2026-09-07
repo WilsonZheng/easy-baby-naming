@@ -66,7 +66,7 @@ export function AiAskSheet({ open, ai, onApply, onClose, onOpenSettings }: Props
       {!ai.ready ? (
         <>
           <div className="note info">
-            这个功能需要一个 OpenRouter 的 API Key（免费模型不用充值）。
+            这个功能需要一个 Groq 的 API Key（免费额度不用充值）。
             设好之后，你用一句话描述想要什么样的名字，AI 会把它翻译成本站的筛选条件。
           </div>
           <button className="btn primary block" style={{ marginTop: 14 }} onClick={onOpenSettings}>

@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL } from '../ai/openrouter'
+import { DEFAULT_MODEL } from '../ai/groq'
 
 /**
  * 全部数据只存在这台设备的 localStorage 里，不上传任何服务器。
@@ -37,7 +37,7 @@ export interface PersistedState {
   theme: 'light' | 'dark' | 'system'
   seenGuide: boolean
   /**
-   * OpenRouter 的 API Key。只存在这台设备的浏览器里，请求直接发往 openrouter.ai。
+   * Groq 的 API Key。只存在这台设备的浏览器里，请求直接发往 api.groq.com。
    * 备份导出时会剔掉，免得 key 跟着文件到处跑。
    */
   aiKey: string

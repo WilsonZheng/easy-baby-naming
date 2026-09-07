@@ -129,7 +129,7 @@ export function Guide() {
       <div className="guide-item">
         <p>
           AI 是<strong>可选的</strong>，默认关闭。不开它，整个网站完全离线运行。
-          开启需要你自己的 OpenRouter API Key，用免费模型不需要充值。
+          开启需要你自己的 Groq API Key，免费额度不用充值。Groq 用自研的推理芯片，同样是免费额度但快得多。
         </p>
         <p style={{ marginTop: 8 }}>
           三个功能都刻意做成「AI 只负责表达，判断仍然由本地引擎给出」：
@@ -144,7 +144,7 @@ export function Guide() {
         <div className="example" style={{ borderLeftColor: 'var(--amber-line)' }}>
           <strong>开启 AI 就意味着数据会离开这台设备。</strong>
           你在「说一句话」里写的原文、让 AI 解读的名字、让 AI 点评的收藏名单（含你写的备注），
-          都会发送到 OpenRouter 和你选的模型提供商。
+          都会发送到 Groq。
           出生日期、时间、城市和排出来的八字不会随这些功能发出去。
           API Key 只存在本机浏览器里，也不会写进导出的备份文件。
         </div>

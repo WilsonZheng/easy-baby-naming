@@ -96,15 +96,33 @@ describe('换一批不重复', () => {
   })
 
   it('候选被抽干时如实返回 exhausted', () => {
+    // 单字名的候选就是字库本身，是最容易抽干的一档
     const seen = new Set<string>()
-    let last = generate({ prefs: prefs({ mustInclude: '文' }), targetElement: null, seed: 1, count: 12 })
-    for (let i = 0; i < 30 && !last.exhausted; i++) {
+    let last = generate({ prefs: prefs({ length: 1 }), targetElement: null, seed: 1, count: 12 })
+    for (let i = 0; i < 60 && !last.exhausted; i++) {
       for (const n of last.names) seen.add(n.given)
       last = generate({
-        prefs: prefs({ mustInclude: '文' }), targetElement: null, seed: i * 31 + 7, count: 12, exclude: seen,
+        prefs: prefs({ length: 1 }), targetElement: null, seed: i * 31 + 7, count: 12, exclude: seen,
       })
     }
-    expect(last.exhausted).toBe(true)
-    expect(last.names.length).toBeLessThan(12)
+    expect(last.exhausted, `抽了 ${seen.size} 个还没见底`).toBe(true)
+  })
+
+  it('指定必含字时不会因为多样化规则只剩几个名字', () => {
+    // 「安」会出现在每一个名字里，不该再受「同一个首字最多两次」的限制
+    const out = generate({
+      prefs: prefs({ gender: 'girl', mustInclude: '安' }), targetElement: null, seed: 3, count: 12,
+    })
+    expect(out.names.length).toBe(12)
+    expect(out.names.every((n) => n.given.includes('安'))).toBe(true)
+  })
+
+  it('必含字是具体名词时也要有名字可出', () => {
+    // 「宇」配不上任何万能前后缀，收紧关联规则后一度返回 0 个
+    const out = generate({
+      prefs: prefs({ gender: 'neutral', mustInclude: '宇' }), targetElement: null, seed: 3, count: 12,
+    })
+    expect(out.names.length).toBe(12)
+    expect(out.names.every((n) => n.given.includes('宇'))).toBe(true)
   })
 })

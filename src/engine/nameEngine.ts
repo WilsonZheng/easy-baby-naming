@@ -176,7 +176,13 @@ export function generate(opts: GenerateOptions): GenerateResult {
     // 自由组合必须讲得通；精选名是人工挑过的，直接放行
     if (!curated) {
       if (entries.some((e) => ONLY_CURATED.has(e.char))) return
-      if (entries.length === 2 && !hasKinship(entries[0], entries[1])) return
+      /*
+       * 「两个字要有关联」这条规则是用来拦住机器自己瞎凑的。
+       * 但用户指定了必含字（多半是辈分字）时，那个字是他自己定的，
+       * 机器只是在给它挑搭档 —— 再用这条卡，像「宇」这种字会一个名字都出不来。
+       * 所以这时只保留硬性安全规则，组合放宽，由打分把好的排到前面。
+       */
+      if (!mustEntry && entries.length === 2 && !hasKinship(entries[0], entries[1])) return
     }
 
     // ---- 硬规则 ----
@@ -450,13 +456,22 @@ export function generate(opts: GenerateOptions): GenerateResult {
     const given = candidate.given
     const first = given[0]
     const last = given[given.length - 1]
-    if ((firstCount.get(first) ?? 0) >= 2) continue
-    if (given.length > 1 && (lastCount.get(last) ?? 0) >= 2) continue
-    firstCount.set(first, (firstCount.get(first) ?? 0) + 1)
-    if (given.length > 1) lastCount.set(last, (lastCount.get(last) ?? 0) + 1)
+    /*
+     * 用户指定了必含字时，那个字本来就会出现在每一个名字里，
+     * 再对它做「同一个首字最多两次」的限制，一批就只剩四个名字
+     * （两个「安x」两个「x安」），看起来像是字库没货了 —— 其实是这条规则自伤。
+     */
+    const skipChar = mustEntry?.char
+    if (first !== skipChar && (firstCount.get(first) ?? 0) >= 2) continue
+    if (given.length > 1 && last !== skipChar && (lastCount.get(last) ?? 0) >= 2) continue
+    if (first !== skipChar) firstCount.set(first, (firstCount.get(first) ?? 0) + 1)
+    if (given.length > 1 && last !== skipChar) lastCount.set(last, (lastCount.get(last) ?? 0) + 1)
     picked.push(candidate)
   }
-  return { names: picked, poolSize: fresh.length, exhausted: picked.length < count }
+
+  // 「看完了」要看候选池本身有没有见底，而不是看这一批凑没凑够 —— 
+  // 多样化规则也会让一批不足 count，那不是真的没货了
+  return { names: picked, poolSize: fresh.length, exhausted: fresh.length <= count }
 }
 
 function buildWhy(

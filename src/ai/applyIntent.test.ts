@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateIntent } from './applyIntent'
-import { extractJson, OpenRouterError } from './openrouter'
+import { extractJson, GroqError } from './groq'
 import type { IntentResult } from './prompts'
 
 describe('模型输出一律不可信', () => {
@@ -78,7 +78,7 @@ describe('解析模型返回的 JSON', () => {
   })
 
   it('完全不是 JSON 时给出可读的错误，而不是抛 SyntaxError', () => {
-    expect(() => extractJson('我不太明白你的意思')).toThrow(OpenRouterError)
+    expect(() => extractJson('我不太明白你的意思')).toThrow(GroqError)
     expect(() => extractJson('我不太明白你的意思')).toThrow(/不是合法 JSON/)
   })
 })

@@ -158,7 +158,7 @@ export default function App() {
                 <div>
                   <div className="label">AI 功能</div>
                   <div className="desc">
-                    {state.aiKey ? `已连上 OpenRouter · ${state.aiModel.split('/').pop()}` : '未开启，本站完全离线运行'}
+                    {state.aiKey ? `已连上 Groq · ${state.aiModel.split('/').pop()}` : '未开启，本站完全离线运行'}
                   </div>
                 </div>
                 <button className="chip sm" onClick={() => setOpenAiSettings(true)}>

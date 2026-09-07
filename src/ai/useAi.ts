@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { chat, extractJson, OpenRouterError } from './openrouter'
+import { chat, extractJson, GroqError } from './groq'
 import {
   describeFavorites, describeName, EXPLAIN_SYSTEM, INTENT_SYSTEM, REVIEW_SYSTEM,
   type IntentResult,
@@ -29,7 +29,7 @@ export function useAi(apiKey: string, model: string): AiState {
     try {
       return await fn()
     } catch (e) {
-      const err = e as OpenRouterError
+      const err = e as GroqError
       setError({ message: err.message ?? '出了点问题', hint: err.hint })
       return null
     } finally {
